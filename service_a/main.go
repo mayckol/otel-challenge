@@ -12,30 +12,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
-//func initTracer() func() {
-//zipkinURL := os.Getenv("ZIPKIN_ENDPOINT")
-//exporter, err := zipkin.New(zipkinURL)
-//if err != nil {
-//	log.Fatalf("Failed to create Zipkin exporter: %v", err)
-//}
-//
-//tp := sdktrace.NewTracerProvider(
-//	sdktrace.WithBatcher(exporter),
-//	sdktrace.WithResource(resource.NewWithAttributes(
-//		semconv.SchemaURL,
-//		semconv.ServiceNameKey.String("service-a"),
-//	)),
-//)
-//
-//otel.SetTracerProvider(tp)
-//
-//return func() {
-//	if err := tp.Shutdown(context.Background()); err != nil {
-//		log.Fatalf("Error shutting down tracer provider: %v", err)
-//	}
-//}
-//}
-
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using environment variables.")
