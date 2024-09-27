@@ -12,37 +12,10 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
-//func initTracer() func() {
-//zipkinURL := os.Getenv("ZIPKIN_ENDPOINT")
-//exporter, err := zipkin.New(zipkinURL)
-//if err != nil {
-//	log.Fatalf("Failed to create Zipkin exporter: %v", err)
-//}
-//
-//tp := sdktrace.NewTracerProvider(
-//	sdktrace.WithBatcher(exporter),
-//	sdktrace.WithResource(resource.NewWithAttributes(
-//		semconv.SchemaURL,
-//		semconv.ServiceNameKey.String("service-b"),
-//	)),
-//)
-//
-//otel.SetTracerProvider(tp)
-//
-//return func() {
-//	if err := tp.Shutdown(context.Background()); err != nil {
-//		log.Fatalf("Error shutting down tracer provider: %v", err)
-//	}
-//}
-//}
-
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using environment variables.")
 	}
-
-	//shutdown := initTracer()
-	//defer shutdown()
 
 	serviceBClient := http_client.NewViaCepClient(
 		os.Getenv("SERVICE_B_URL"),
@@ -64,7 +37,7 @@ func main() {
 	if port == "" {
 		port = "8082"
 	}
-	fmt.Printf("Service A running on port %s\n", port)
+	fmt.Printf("Service B running on port %s\n", port)
 	if err := http.ListenAndServe(":"+port, mux); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
