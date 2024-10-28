@@ -1,0 +1,40 @@
+services:
+  service_a:
+    build: ./service_a
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVICE_B_URL=http://service_b:8082
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
+      - OTEL_SERVICE_NAME=service_a
+    depends_on:
+      - service_b
+      - otel-collector
+
+  service_b:
+    build: ./service_b
+    ports:
+      - "8082:8082"
+    environment:
+      - SERVICE_B_URL=https://viacep.com.br/ws
+      - WEATHER_API_URL=http://api.weatherapi.com/v1/current.json
+      - WEATHER_API_KEY=bfdfaf52407940448ce140426242608
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
+      - OTEL_SERVICE_NAME=service_b
+    depends_on:
+      - otel-collector
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.83.0
+    volumes:
+      - ./otel-collector-config.yml:/etc/otel-collector-config.yml
+    command: ["--config", "/etc/otel-collector-config.yml"]
+    ports:
+      - "4317:4317"
+    depends_on:
+      - zipkin
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"

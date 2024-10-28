@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"github.com/mayckol/otel-challenge/service-b/utils"
+	"go.opentelemetry.io/otel"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,6 +24,10 @@ func NewWeatherHandler(viaCepClient http_client.ViaCepClientInterface, weatherCl
 }
 
 func (h *WeatherHandler) Weather(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	tracer := otel.Tracer("service_b")
+	ctx, span := tracer.Start(ctx, "HandleRequest")
+	defer span.End()
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		if _, err := w.Write([]byte("method not allowed")); err != nil {

@@ -1,10 +1,12 @@
 package http_client
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"net/http"
 )
 
@@ -18,19 +20,23 @@ type ServiceBClient struct {
 }
 
 func NewServiceBClient(baseURL string, skipTLSVerification bool) *ServiceBClient {
-	transport := &http.Transport{}
-	if skipTLSVerification {
-		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: skipTLSVerification},
 	}
+
+	client := &http.Client{
+		Transport: otelhttp.NewTransport(transport),
+	}
+
 	return &ServiceBClient{
-		Client:  &http.Client{Transport: transport},
+		Client:  client,
 		BaseURL: baseURL,
 	}
 }
 
-func (v *ServiceBClient) WeatherDetails(zipCode string) (*ServiceBResponse, error) {
+func (v *ServiceBClient) WeatherDetails(ctx context.Context, zipCode string) (*ServiceBResponse, error) {
 	url := fmt.Sprintf("%s/service-b?zipcode=%s", v.BaseURL, zipCode)
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf(url), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}

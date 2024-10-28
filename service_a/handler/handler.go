@@ -9,6 +9,7 @@ import (
 
 	"github.com/mayckol/otel-challenge/service-a/http_client"
 	"github.com/mayckol/otel-challenge/service-a/utils"
+	"go.opentelemetry.io/otel"
 )
 
 type ServiceBHandler struct {
@@ -22,8 +23,10 @@ func NewServiceBHandler(ServiceBClient http_client.ServiceBClientInterface) *Ser
 }
 
 func (h *ServiceBHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	//ctx, span := h.Tracer.Start(r.Context(), "HandleServiceA")
-	//defer span.End()
+	ctx := r.Context()
+	tracer := otel.Tracer("service_a")
+	ctx, span := tracer.Start(ctx, "HandleRequest")
+	defer span.End()
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -43,7 +46,7 @@ func (h *ServiceBHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ServiceBResponse, err := h.ServiceBClient.WeatherDetails(string(zipCode))
+	ServiceBResponse, err := h.ServiceBClient.WeatherDetails(ctx, string(zipCode))
 	if err != nil {
 		var statusCode int
 		var message string

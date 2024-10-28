@@ -1,5 +1,7 @@
 package http_client
 
+import "context"
+
 type ServiceBClientInterface interface {
-	WeatherDetails(zipCode string) (*ServiceBResponse, error)
+	WeatherDetails(ctx context.Context, zipCode string) (*ServiceBResponse, error)
 }
